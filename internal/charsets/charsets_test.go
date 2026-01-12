@@ -5,7 +5,7 @@
 package charsets
 
 import (
-	"github.com/imroc/req/v3/internal/tests"
+	"github.com/stoney-work/req/v3/internal/tests"
 	"os"
 	"runtime"
 	"testing"

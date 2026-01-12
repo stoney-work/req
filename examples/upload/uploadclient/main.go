@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/imroc/req/v3"
+	"github.com/stoney-work/req/v3"
 )
 
 func main() {
@@ -16,7 +16,7 @@ func main() {
 	/* Output
 	POST /upload HTTP/1.1
 	Host: 127.0.0.1:8888
-	User-Agent: req/v2 (https://github.com/imroc/req)
+	User-Agent: req/v2 (https://github.com/stoney-work/req)
 	Transfer-Encoding: chunked
 	Content-Type: multipart/form-data; boundary=6af1b071a682709355cf5fb15b9cf9e793df7a45e5cd1eb7c413f2e72bf6
 	Accept-Encoding: gzip

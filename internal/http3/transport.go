@@ -17,8 +17,8 @@ import (
 
 	"golang.org/x/net/http/httpguts"
 
-	"github.com/imroc/req/v3/internal/transport"
 	"github.com/quic-go/quic-go"
+	"github.com/stoney-work/req/v3/internal/transport"
 )
 
 // Settings are HTTP/3 settings that apply to the underlying connection.

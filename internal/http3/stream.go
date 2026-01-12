@@ -9,12 +9,12 @@ import (
 	"net/http/httptrace"
 	"time"
 
-	"github.com/imroc/req/v3/internal/compress"
-	"github.com/imroc/req/v3/internal/dump"
-	"github.com/imroc/req/v3/internal/transport"
 	"github.com/quic-go/quic-go"
 	"github.com/quic-go/quic-go/http3/qlog"
 	"github.com/quic-go/quic-go/qlogwriter"
+	"github.com/stoney-work/req/v3/internal/compress"
+	"github.com/stoney-work/req/v3/internal/dump"
+	"github.com/stoney-work/req/v3/internal/transport"
 
 	"github.com/quic-go/qpack"
 )

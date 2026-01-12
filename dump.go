@@ -1,7 +1,7 @@
 package req
 
 import (
-	"github.com/imroc/req/v3/internal/dump"
+	"github.com/stoney-work/req/v3/internal/dump"
 	"io"
 	"os"
 )

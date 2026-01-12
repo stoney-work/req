@@ -12,12 +12,12 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/imroc/req/v3/internal/dump"
-	reqheader "github.com/imroc/req/v3/internal/header"
 	"github.com/quic-go/qpack"
 	"github.com/quic-go/quic-go"
 	"github.com/quic-go/quic-go/http3/qlog"
 	"github.com/quic-go/quic-go/qlogwriter"
+	"github.com/stoney-work/req/v3/internal/dump"
+	reqheader "github.com/stoney-work/req/v3/internal/header"
 
 	"golang.org/x/net/http/httpguts"
 	"golang.org/x/net/http2/hpack"

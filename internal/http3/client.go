@@ -12,11 +12,11 @@ import (
 	"net/textproto"
 	"time"
 
-	"github.com/imroc/req/v3/internal/dump"
-	"github.com/imroc/req/v3/internal/transport"
 	"github.com/quic-go/quic-go"
 	"github.com/quic-go/quic-go/http3/qlog"
 	"github.com/quic-go/quic-go/quicvarint"
+	"github.com/stoney-work/req/v3/internal/dump"
+	"github.com/stoney-work/req/v3/internal/transport"
 
 	"github.com/quic-go/qpack"
 )
@@ -382,7 +382,7 @@ func (c *ClientConn) doRequest(req *http.Request, str *RequestStream) (*http.Res
 				if req.ContentLength > 0 {
 					contentLength = req.ContentLength
 				}
-			  dumps := dump.GetDumpers(req.Context(), c.Dump)
+				dumps := dump.GetDumpers(req.Context(), c.Dump)
 				err := c.sendRequestBody(str, req.Body, contentLength, dumps)
 				traceWroteRequest(trace, err)
 				if err != nil {

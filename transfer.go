@@ -19,10 +19,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/imroc/req/v3/internal"
-	"github.com/imroc/req/v3/internal/ascii"
-	"github.com/imroc/req/v3/internal/dump"
-	"github.com/imroc/req/v3/internal/godebug"
+	"github.com/stoney-work/req/v3/internal"
+	"github.com/stoney-work/req/v3/internal/ascii"
+	"github.com/stoney-work/req/v3/internal/dump"
+	"github.com/stoney-work/req/v3/internal/godebug"
 
 	"golang.org/x/net/http/httpguts"
 )
