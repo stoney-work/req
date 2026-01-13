@@ -1300,6 +1300,7 @@ func (c *Client) SetTLSFingerprintSpec(clientHelloSpec *utls.ClientHelloSpec) *C
 			MaxVersion:                  tlsConfig.MaxVersion,
 			DynamicRecordSizingDisabled: tlsConfig.DynamicRecordSizingDisabled,
 			KeyLogWriter:                tlsConfig.KeyLogWriter,
+			OmitEmptyPsk:                true,
 		}
 		uconn := &uTLSConn{utls.UClient(plainConn, utlsConfig, utls.HelloCustom)}
 		err = uconn.ApplyPreset(clientHelloSpec)
