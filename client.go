@@ -1333,6 +1333,65 @@ func (c *Client) SetTLSFingerprintSpec(clientHelloSpec *utls.ClientHelloSpec) *C
 	return c
 }
 
+// SetTLSFingerprintSpecFunc set the tls fingerprint for tls handshake, will use utls
+// (https://github.com/refraction-networking/utls) to perform the tls handshake,
+// which uses the specified clientHelloSpec to simulate the tls fingerprint.
+// Note this is valid for HTTP1 and HTTP2, not HTTP3.
+func (c *Client) SetTLSFingerprintSpecFunc(specfn func() *utls.ClientHelloSpec) *Client {
+	fn := func(ctx context.Context, addr string, plainConn net.Conn) (conn net.Conn, tlsState *tls.ConnectionState, err error) {
+		colonPos := strings.LastIndex(addr, ":")
+		if colonPos == -1 {
+			colonPos = len(addr)
+		}
+		hostname := addr[:colonPos]
+		tlsConfig := c.GetTLSClientConfig()
+		utlsConfig := &utls.Config{
+			ServerName:                  hostname,
+			Rand:                        tlsConfig.Rand,
+			Time:                        tlsConfig.Time,
+			RootCAs:                     tlsConfig.RootCAs,
+			NextProtos:                  tlsConfig.NextProtos,
+			ClientCAs:                   tlsConfig.ClientCAs,
+			InsecureSkipVerify:          tlsConfig.InsecureSkipVerify,
+			CipherSuites:                tlsConfig.CipherSuites,
+			SessionTicketsDisabled:      tlsConfig.SessionTicketsDisabled,
+			MinVersion:                  tlsConfig.MinVersion,
+			MaxVersion:                  tlsConfig.MaxVersion,
+			DynamicRecordSizingDisabled: tlsConfig.DynamicRecordSizingDisabled,
+			KeyLogWriter:                tlsConfig.KeyLogWriter,
+			OmitEmptyPsk:                true,
+		}
+		uconn := &uTLSConn{utls.UClient(plainConn, utlsConfig, utls.HelloCustom)}
+		err = uconn.ApplyPreset(specfn())
+		if err != nil {
+			return conn, tlsState, err
+		}
+		err = uconn.HandshakeContext(ctx)
+		if err != nil {
+			return conn, tlsState, err
+		}
+		cs := uconn.Conn.ConnectionState()
+		conn = uconn
+		tlsState = &tls.ConnectionState{
+			Version:                     cs.Version,
+			HandshakeComplete:           cs.HandshakeComplete,
+			DidResume:                   cs.DidResume,
+			CipherSuite:                 cs.CipherSuite,
+			NegotiatedProtocol:          cs.NegotiatedProtocol,
+			NegotiatedProtocolIsMutual:  cs.NegotiatedProtocolIsMutual,
+			ServerName:                  cs.ServerName,
+			PeerCertificates:            cs.PeerCertificates,
+			VerifiedChains:              cs.VerifiedChains,
+			SignedCertificateTimestamps: cs.SignedCertificateTimestamps,
+			OCSPResponse:                cs.OCSPResponse,
+			TLSUnique:                   cs.TLSUnique,
+		}
+		return conn, tlsState, err
+	}
+	c.Transport.SetTLSHandshake(fn)
+	return c
+}
+
 // SetTLSHandshake set the custom tls handshake function, only valid for HTTP1 and HTTP2, not HTTP3,
 // it specifies an optional dial function for tls handshake, it works even if a proxy is set, can be
 // used to customize the tls fingerprint.
