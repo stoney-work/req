@@ -2057,7 +2057,11 @@ func (cc *ClientConn) encodeHeaders(req *http.Request, addGzipHeader bool, trail
 		}
 
 		if sort {
-			header.SortKeyValues(kvs, req.Header[header.HeaderOderKey])
+			if orderMap := cc.t.CachedHeaderOrder; orderMap != nil {
+				header.SortKeyValuesCached(kvs, orderMap)
+			} else {
+				header.SortKeyValues(kvs, req.Header[header.HeaderOderKey])
+			}
 			for _, kv := range kvs {
 				for _, v := range kv.Values {
 					f(kv.Key, v)

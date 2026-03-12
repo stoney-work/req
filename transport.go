@@ -3155,17 +3155,24 @@ func (pc *persistConn) writeRequest(r *http.Request, w io.Writer, usingProxy boo
 	}
 
 	var writeHeader func(key string, values ...string) error
-	var kvs []header.KeyValues
+	var kvsPtr *[]header.KeyValues
 	sort := false
 
 	if r.Header != nil && len(r.Header[header.HeaderOderKey]) > 0 {
+		kvsPtr = header.GetKvsFromPool()
+		kvs := *kvsPtr
 		writeHeader = func(key string, values ...string) error {
 			kvs = append(kvs, header.KeyValues{
 				Key:    key,
 				Values: values,
 			})
+			*kvsPtr = kvs
 			return nil
 		}
+		defer func() {
+			// 无论正常还是错误退出，均归还 pool，避免 pool 对象被 GC 回收
+			header.PutKvsToPool(kvsPtr)
+		}()
 		sort = true
 	} else {
 		writeHeader = _writeHeader
@@ -3212,7 +3219,13 @@ func (pc *persistConn) writeRequest(r *http.Request, w io.Writer, usingProxy boo
 	}
 
 	if sort { // sort and write headers
-		header.SortKeyValues(kvs, r.Header[header.HeaderOderKey])
+		kvs := *kvsPtr
+		orderMap := pc.t.CachedHeaderOrder
+		if orderMap != nil {
+			header.SortKeyValuesCached(kvs, orderMap)
+		} else {
+			header.SortKeyValues(kvs, r.Header[header.HeaderOderKey])
+		}
 		for _, kv := range kvs {
 			_writeHeader(kv.Key, kv.Values...)
 		}

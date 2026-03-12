@@ -929,6 +929,8 @@ func (c *Client) SetCommonHeadersNonCanonical(hdrs map[string]string) *Client {
 //	    "accept-encoding",
 //	).Get(url
 func (c *Client) SetCommonHeaderOrder(keys ...string) *Client {
+	// 预计算 order map，仅在此一次分配，后续每次请求直接复用
+	c.CachedHeaderOrder = header.BuildOrderMap(keys)
 	c.Transport.WrapRoundTripFunc(func(rt http.RoundTripper) HttpRoundTripFunc {
 		return func(req *http.Request) (resp *http.Response, err error) {
 			if req.Header == nil {

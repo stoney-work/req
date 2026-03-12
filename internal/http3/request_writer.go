@@ -18,6 +18,7 @@ import (
 	"github.com/quic-go/quic-go/qlogwriter"
 	"github.com/stoney-work/req/v3/internal/dump"
 	reqheader "github.com/stoney-work/req/v3/internal/header"
+	"github.com/stoney-work/req/v3/internal/transport"
 
 	"golang.org/x/net/http/httpguts"
 	"golang.org/x/net/http2/hpack"
@@ -30,14 +31,16 @@ type requestWriter struct {
 	mutex     sync.Mutex
 	encoder   *qpack.Encoder
 	headerBuf *bytes.Buffer
+	opts      *transport.Options
 }
 
-func newRequestWriter() *requestWriter {
+func newRequestWriter(opts *transport.Options) *requestWriter {
 	headerBuf := &bytes.Buffer{}
 	encoder := qpack.NewEncoder(headerBuf)
 	return &requestWriter{
 		encoder:   encoder,
 		headerBuf: headerBuf,
+		opts:      opts,
 	}
 }
 
@@ -234,7 +237,11 @@ func (w *requestWriter) encodeHeaders(req *http.Request, addGzipHeader bool, tra
 		}
 
 		if sort {
-			reqheader.SortKeyValues(kvs, req.Header[reqheader.HeaderOderKey])
+			if orderMap := w.opts.CachedHeaderOrder; orderMap != nil {
+				reqheader.SortKeyValuesCached(kvs, orderMap)
+			} else {
+				reqheader.SortKeyValues(kvs, req.Header[reqheader.HeaderOderKey])
+			}
 			for _, kv := range kvs {
 				for _, v := range kv.Values {
 					f(kv.Key, v)

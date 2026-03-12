@@ -166,6 +166,10 @@ type Options struct {
 	Debugf func(format string, v ...any)
 
 	Dump *dump.Dumper
+
+	// CachedHeaderOrder 预计算的 header 排序 map，由 SetCommonHeaderOrder 设置。
+	// 供 HTTP/1.1、HTTP/2、HTTP/3 的 writeRequest 路径复用，避免每次请求重新 make(map)。
+	CachedHeaderOrder map[string]int
 }
 
 func (o Options) Clone() Options {
